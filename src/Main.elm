@@ -11,7 +11,7 @@ type Value
     | PrimV {f : List Value -> Value}
     | CloV { params : List String
             , body : ExprC
-            , cloEnv : Env}
+            , cloEnv : List Bind}
     | NullV  {msg : String}
     | Err
 
@@ -35,32 +35,16 @@ type ExprC
     | AppC  { func : ExprC 
             , args : List ExprC}
     
-
 topEnv = 
-    [
-        { name = "true"
-        , val = BoolV {b = True}}
-       ,
-        { name = "false"
-        , val = BoolV {b = False}}
-       ,
-        { name = "+"
-        ,  val = PrimV  {f = add}} 
-       , 
-        { name = "-"
-        ,  val = PrimV  {f = sub}} 
-       ,
-        { name = "*"
-        ,  val = PrimV  {f = mul}} 
-       ,
-        { name = "/"
-        ,  val = PrimV  {f = div}} 
-       , 
-        { name = "<="
-        ,  val = PrimV  {f = leq}} 
-       , 
-        { name = "equals?"
-        ,  val = PrimV  {f = eqs}} ]
+      [
+       Bind  "true"  (BoolV {b = True})
+        , Bind "false" (BoolV {b = False})
+        , Bind  "+" (PrimV  {f = add})
+        , Bind "-" (PrimV  {f = sub})
+        , Bind  "*" (PrimV  {f = mul} )
+        , Bind "/" (PrimV  {f = div} )
+        , Bind "<=" (PrimV  {f = leq} )
+        , Bind "equals?" (PrimV  {f = eqs} )] 
 
 -- Primitive Functions 
 
@@ -118,7 +102,7 @@ eqs vals =
         _ ->
              Err 
                  
-numTest =  NumV { num = 30.0}
+numTest =  NumC { num = 30.0}
 
 serialize : Value -> String
 serialize val = 
@@ -139,7 +123,7 @@ serialize val =
             "DUNQ: ERROR"
 
 
-interp : (ExprC) -> (Env) -> Value
+interp : (ExprC) -> (List Bind) -> Value
 interp exp en =
     case exp of
             NumC nC -> 
@@ -158,7 +142,7 @@ interp exp en =
                  Err
 
 main =
-    text (serialize numTest)
+    text (serialize (interp numTest topEnv))
 
 
 
