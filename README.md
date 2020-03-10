@@ -1,5 +1,5 @@
 # csc430-elm
 
-#HOW TO RUN
+# HOW TO RUN
 
-```$elm reactor```
+```$ elm reactor```
