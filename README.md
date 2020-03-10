@@ -1,3 +1,5 @@
 # csc430-elm
 
-##WORKING ON Structs
+#HOW TO RUN
+
+```$elm reactor```
