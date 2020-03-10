@@ -137,6 +137,26 @@ serialize val =
             "#procedure"
         Err ->
             "DUNQ: ERROR"
+
+
+interp : (ExprC) -> (Env) -> Value
+interp exp en =
+    case exp of
+            NumC nC -> 
+                NumV { num = nC.num}
+            LamC l -> 
+                CloV { params = l.params
+                     , body = l.body
+                     , cloEnv = en}
+            StrC st ->
+                StrV {str = st.str}
+            PrimC p ->
+                PrimV {f = p.f}
+
+            --@TODO add IdC, IfC and AppC
+            _ ->
+                 Err
+
 main =
     text (serialize numTest)
 
