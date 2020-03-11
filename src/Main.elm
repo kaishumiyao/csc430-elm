@@ -37,7 +37,7 @@ type ExprC
     
 topEnv = 
       [
-       Bind  "true"  (BoolV {b = True})
+      Bind  "true"  (BoolV {b = True})
         , Bind "false" (BoolV {b = False})
         , Bind  "+" (PrimV  {f = add})
         , Bind "-" (PrimV  {f = sub})
@@ -52,55 +52,55 @@ add : List Value -> Value
 add vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             NumV {num = n1.num + n2.num}
+            NumV {num = n1.num + n2.num}
         _ ->
-             Err 
-                 
+            Err 
+
 sub : List Value -> Value
 sub vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             NumV {num = n1.num - n2.num}
+            NumV {num = n1.num - n2.num}
         _ ->
-             Err 
+            Err 
                  
 
 mul : List Value -> Value
 mul vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             NumV {num = n1.num * n2.num}
+            NumV {num = n1.num * n2.num}
         _ ->
-             Err 
+            Err 
                  
 
 div : List Value -> Value
 div vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             NumV {num = (n1.num / n2.num)}
+            NumV {num = n1.num / n2.num}
         _ ->
-             Err 
+            Err 
                  
 leq: List Value -> Value
 leq vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             BoolV {b = (n1.num <= n2.num)}
+            BoolV {b = n1.num <= n2.num}
         _ ->
-             Err 
+            Err 
 
 eqs: List Value -> Value
 eqs vals =
     case vals of
         [ NumV n1 , NumV n2 ] ->
-             BoolV {b = (n1.num == n2.num)}
+            BoolV {b = (n1.num == n2.num)}
         [ BoolV b1 , BoolV b2 ] ->
-             BoolV {b = (b1.b == b2.b)}
+            BoolV {b = (b1.b == b2.b)}
         [ StrV s1, StrV s2] ->
-             BoolV {b = (s1.str == s2.str)}
+            BoolV {b = (s1.str == s2.str)}
         _ ->
-             Err 
+            Err 
                  
 numTest =  NumC { num = 30.0}
 
@@ -136,10 +136,21 @@ interp exp en =
                 StrV {str = st.str}
             PrimC p ->
                 PrimV {f = p.f}
-
             --@TODO add IdC, IfC and AppC
             _ ->
                  Err
+
+envlookup : String -> List Bind -> Value
+envlookup n en = 
+    case en of
+        [] -> 
+            Err
+        x :: xs ->
+            if x.name == n then
+                x.val
+            else
+              envlookup n xs
+
 
 main =
     text (serialize (interp numTest topEnv))
