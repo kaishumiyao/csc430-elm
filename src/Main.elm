@@ -2,8 +2,6 @@ module Main exposing (..)
 
 import Html exposing (text)
 
-
-
 type Value
     = NumV { num :  Float}
     | BoolV { b : Bool }
@@ -62,8 +60,7 @@ sub vals =
         [ NumV n1 , NumV n2 ] ->
             NumV {num = n1.num - n2.num}
         _ ->
-            Err 
-                 
+            Err    
 
 mul : List Value -> Value
 mul vals =
@@ -71,8 +68,7 @@ mul vals =
         [ NumV n1 , NumV n2 ] ->
             NumV {num = n1.num * n2.num}
         _ ->
-            Err 
-                 
+            Err      
 
 div : List Value -> Value
 div vals =
@@ -81,7 +77,7 @@ div vals =
             NumV {num = n1.num / n2.num}
         _ ->
             Err 
-                 
+                
 leq: List Value -> Value
 leq vals =
     case vals of
@@ -101,7 +97,7 @@ eqs vals =
             BoolV {b = (s1.str == s2.str)}
         _ ->
             Err 
-                 
+                
 numTest =  NumC { num = 30.0}
 
 serialize : Value -> String
@@ -136,9 +132,48 @@ interp exp en =
                 StrV {str = st.str}
             PrimC p ->
                 PrimV {f = p.f}
-            --@TODO add IdC, IfC and AppC
-            _ ->
-                 Err
+            IdC i ->
+                envlookup i.sym en
+            IfC iC ->
+                let 
+                    testval = interp iC.cond en
+                in
+                case testval of
+                    BoolV b ->
+                        if b.b then
+                            interp iC.thn en
+                        else
+                            interp iC.els en
+                    _ ->
+                        Err
+            AppC ap ->
+                let
+                    fvalue = interp ap.func en
+                in
+                case fvalue of
+                    CloV c ->
+                        interp c.body (envhelper c.params ap.args c.cloEnv en)
+                    PrimV p ->
+                        p.f (List.map (\arg -> interp arg en) ap.args)
+                    _ ->
+                        Err
+
+envhelper : List String -> List ExprC -> List Bind -> List Bind -> List Bind
+envhelper params args cenv oenv =
+  if List.isEmpty params && List.isEmpty args then
+      cenv
+  else if not (List.isEmpty params) && not (List.isEmpty args) then
+      case params of
+          [] ->
+              Debug.todo "Wont come here"
+          p :: px ->
+              case args of
+                  [] ->
+                      Debug.todo "Wont come here"
+                  a :: ax ->
+                      envhelper px ax (Bind p (interp a oenv) :: cenv) oenv
+  else
+      [] --not sure how to catch error here
 
 envlookup : String -> List Bind -> Value
 envlookup n en = 
