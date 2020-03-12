@@ -59,7 +59,12 @@ parseTest =
             (\_ -> Expect.equal (Main.IfC {cond = (Main.NumC {num = 1.0}),
                                             thn = (Main.NumC {num = 2.0}),
                                             els = (Main.NumC {num = 3.0})})
-            (Main.parse ["if", "1", "2", "3"]))]
+            (Main.parse ["if", "1", "2", "3"])),
+        test "Parse on if statement, all types"
+            (\_ -> Expect.equal (Main.IfC {cond = (Main.IdC {sym = "true"}),
+                                            thn = (Main.StrC {str = "foo"}),
+                                            els = (Main.NumC {num = 2.0})})
+            (Main.parse ["if", "'true", "foo", "2.0"]))]
 
 
 parseAndInterpTest : Test
@@ -76,7 +81,10 @@ parseAndInterpTest =
             (Main.serialize (Main.interp (Main.parse ["if", "'true", "2.0", "3.0"]) Main.topEnv))),
         test "Parse and interp on if, false"
             (\_ -> Expect.equal "falseClause"
-            (Main.serialize (Main.interp (Main.parse ["if", "'false", "2.0", "falseClause"]) Main.topEnv)))]
+            (Main.serialize (Main.interp (Main.parse ["if", "'false", "2.0", "falseClause"]) Main.topEnv))),
+        test "Parse and interp on if"
+            (\_ -> Expect.equal "foo"
+            (Main.serialize (Main.interp (Main.parse ["if", "'true", "foo", "2.0"]) Main.topEnv)))]
 
 
 
