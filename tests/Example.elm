@@ -10,6 +10,7 @@ suite =
     test "two plus two equals four"
         (\_ -> Expect.equal 4 (2 + 2))
 
+
 interpTest : Test
 interpTest = 
     describe "Interp"
@@ -40,6 +41,42 @@ interpTest =
                                                         Main.NumC { num = 5}]},
                                     Main.NumC { num = 2}]})
                 Main.topEnv)))]
-    
+
+
+parseTest : Test
+parseTest =
+    describe "Parse"
+        [test "Parse on number"
+            (\_ -> Expect.equal (Main.NumC {num = 4.0})
+            (Main.parse ["4"])),
+        test "Parse on symbol"
+            (\_ -> Expect.equal (Main.IdC {sym = "foo"})
+            (Main.parse ["'foo"])),
+        test "Parse on string"
+            (\_ -> Expect.equal (Main.StrC {str = "myString"})
+            (Main.parse ["myString"])),
+        test "Parse on if statement"
+            (\_ -> Expect.equal (Main.IfC {cond = (Main.NumC {num = 1.0}),
+                                            thn = (Main.NumC {num = 2.0}),
+                                            els = (Main.NumC {num = 3.0})})
+            (Main.parse ["if", "1", "2", "3"]))]
+
+
+parseAndInterpTest : Test
+parseAndInterpTest =
+    describe "Parse and interp"
+        [test "Parse and interp on number"
+            (\_ -> Expect.equal "4"
+            (Main.serialize (Main.interp (Main.parse ["4"]) Main.topEnv))),
+        test "Parse and interp on string"
+            (\_ -> Expect.equal "foo"
+            (Main.serialize (Main.interp (Main.parse ["foo"]) Main.topEnv))),
+        test "Parse and interp on if, true"
+            (\_ -> Expect.equal "2"
+            (Main.serialize (Main.interp (Main.parse ["if", "'true", "2.0", "3.0"]) Main.topEnv))),
+        test "Parse and interp on if, false"
+            (\_ -> Expect.equal "falseClause"
+            (Main.serialize (Main.interp (Main.parse ["if", "'false", "2.0", "falseClause"]) Main.topEnv)))]
+
 
 

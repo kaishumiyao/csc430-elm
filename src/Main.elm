@@ -1,6 +1,9 @@
 module Main exposing (..)
 
 import Html exposing (text)
+import String exposing (toFloat, slice, dropLeft, dropRight, split)
+import List exposing (head, tail, length)
+import Array exposing (toList, fromList, get)
 
 type Value
     = NumV { num :  Float}
@@ -100,6 +103,7 @@ eqs vals =
                 
 numTest =  NumC { num = 30.0}
 
+
 serialize : Value -> String
 serialize val = 
     case val of 
@@ -158,6 +162,7 @@ interp exp en =
                     _ ->
                         Err
 
+
 envhelper : List String -> List ExprC -> List Bind -> List Bind -> List Bind
 envhelper params args cenv oenv =
   if List.isEmpty params && List.isEmpty args then
@@ -175,6 +180,7 @@ envhelper params args cenv oenv =
   else
       [] --not sure how to catch error here
 
+
 envlookup : String -> List Bind -> Value
 envlookup n en = 
     case en of
@@ -185,6 +191,68 @@ envlookup n en =
                 x.val
             else
               envlookup n xs
+
+
+listIndex : Int -> List a -> a
+listIndex index list =
+    if  (List.length list) >= index then
+        let
+            head = List.take index list
+                    |> List.reverse
+                    |> List.head
+        in
+            case head of
+                Just val ->
+                    val
+                Nothing ->
+                    Debug.todo "error"
+    else
+        Debug.todo "error"
+
+
+parse : List String -> ExprC
+parse exp =
+    if length exp == 1 then
+        let
+            firstMaybe = head exp
+        in
+            case firstMaybe of
+                Just first ->
+                    let
+                        f = String.toFloat first
+                    in
+                        case f of
+                            Just num ->
+                                NumC {num = num}
+                            Nothing ->
+                                if slice 0 1 first == "'" then
+                                    IdC {sym = dropLeft 1 first}
+                                else
+                                    StrC {str = first}
+                Nothing ->
+                    Debug.todo "error"
+
+    else if length exp > 1 then
+        let
+            firstMaybe = head exp
+        in
+            case firstMaybe of
+                Just first ->
+                    if first == "if" then
+                        let
+                            f1 = split " " (listIndex 2 exp)
+                            f2 = split " " (listIndex 3 exp)
+                            f3 = split " " (listIndex 4 exp)
+                        in
+                            IfC {cond = parse f1,
+                                thn = parse f2,
+                                els = parse f3}
+                    else
+                        Debug.todo "error"
+                Nothing ->
+                    Debug.todo "error"
+    else
+        Debug.todo "error"
 
 
 main =
